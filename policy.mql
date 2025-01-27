@@ -1,0 +1,33 @@
+policies:
+  - uid: dockerfile-baseline
+    name: Dockerfile Baseline
+    version: 1.0.0
+    authors:
+      - name: christopher crawford
+        email: cafe@espresso.moe
+    docs:
+      desc: Policy for checking Dockerfile security and configuration
+    tags:
+      mondoo.com/category: security
+      mondoo.com/platform: linux,ubuntu,debian,container
+
+    groups:
+      - title: Dockerfile Checks
+        filters: |
+          asset.family.contains("container")
+
+        checks:
+          - uid: dockerfile-01
+            title: Ensure Dockerfile exposes port 8080
+            mql: |
+              docker.file.instructions
+                | where original == "EXPOSE 8080"
+                | count > 0
+
+          - uid: dockerfile-02
+            title: Ensure binary app is copied correctly
+            mql: |
+              docker.file.instructions
+                | where original == "COPY --from=builder /app/app ."
+                | count > 0
+
