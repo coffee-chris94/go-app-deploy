@@ -10,7 +10,7 @@ jobs:
 
     steps:
     - name: Checkout code
-      uses: actions/checkout@v3  # Checkout code at the specified commit
+      uses: actions/checkout@v3
 
     - name: Set up Go
       uses: actions/setup-go@v3
@@ -30,16 +30,16 @@ jobs:
       run: go build -o main .
 
     - name: Upload binary as release asset
-      uses: actions/upload-artifact@v3  # Updated to v3
+      uses: actions/upload-artifact@v3
       with:
         name: main
         path: ./main
 
     - name: Trigger Deployment Repository
-      run: |
-        curl -X POST \
-          -H "Authorization: token ${{ secrets.REPO_DEPLOY_TOKEN }}" \
-          -H "Accept: application/vnd.github.v3+json" \
-          https://api.github.com/repos/MCMXCIII/go-app-container/dispatches \
-          -d '{"event_type": "build_container"}'
+      uses: peter-evans/repository-dispatch@v3
+      with:
+        token: ${{ secrets.REPO_DEPLOY_TOKEN }}
+        repository: coffee-chris94/go-app-container
+        event-type: build_container
+        client-payload: '{"ref": "${{ github.ref }}", "sha": "${{ github.sha }}"}'
 
